@@ -8,9 +8,8 @@ const ChatWidget: React.FC<Props> = ({ onOpen }) => {
   return (
     <button
       onClick={onOpen}
-      aria-label="Abrir chat"
+      className="fixed bottom-4 right-4 bg-gold text-black rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
       title="Abrir chat"
-      className="fixed right-6 bottom-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-pink-500 to-yellow-400 shadow-lg flex items-center justify-center text-black font-bold"
     >
       💬
     </button>

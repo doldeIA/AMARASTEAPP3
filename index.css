@@ -1,0 +1,6 @@
+/* index.css (root) - processed by PostCSS/Tailwind during build */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Se já tem estilos globais em src/index.css, replique/adicione aqui */

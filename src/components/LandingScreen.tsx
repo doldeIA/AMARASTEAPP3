@@ -1,28 +1,26 @@
 import React from "react";
 
 interface Props {
-  onAccess?: () => void;
+  onAccess: () => void;
 }
 
 const LandingScreen: React.FC<Props> = ({ onAccess }) => {
   return (
-    <div className="h-screen w-full flex items-center justify-center bg-[#8b2e00] text-white">
-      <div className="text-center px-6">
-        <h1 className="text-4xl font-extrabold mb-6">AMARASTÉ LIVE</h1>
-
+    <div className="h-full w-full flex flex-col items-center justify-center p-6 bg-transparent">
+      <div className="max-w-xl text-center">
+        <h1 className="text-5xl font-playfair mb-4 neon-white-text-glow">Amarasté Live</h1>
+        <p className="text-white/80 mb-6">Portal dimensional da sua identidade sonora.</p>
         <button
-          onClick={() => onAccess?.()}
-          className="w-full max-w-xs mx-auto px-6 py-3 rounded-lg font-bold border border-white bg-black"
-          aria-label="Acessar conteúdo"
+          onClick={onAccess}
+          aria-label="Acessar"
+          className="mx-auto px-8 py-3 rounded-lg bg-gold text-black font-bold shadow-lg neon-pulse"
         >
           ACESSAR
         </button>
-
-        <p className="mt-6 text-sm text-white/70">Bem-vindo — clique em Acessar</p>
+        <p className="text-sm text-white/60 mt-4">Integração e pré-carregamento em andamento ao clicar.</p>
       </div>
     </div>
   );
 };
 
 export default LandingScreen;
-

@@ -1,29 +1,22 @@
 import React from "react";
 
-interface Props {
-  onBack: () => void;
-}
-
-const DownloadsScreen: React.FC<Props> = ({ onBack }) => {
+const DownloadsScreen: React.FC = () => {
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">Downloads</h2>
-        <button onClick={onBack} className="text-sm underline">Voltar</button>
-      </div>
-
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <div className="p-4 bg-white/5 rounded">
-          <h3 className="font-semibold">Press Kit</h3>
-          <p className="text-sm text-white/70">Baixe seu press kit em PDF.</p>
-          <a className="mt-2 inline-block text-sm underline" href="/home.pdf" download>Download PDF</a>
-        </div>
-        <div className="p-4 bg-white/5 rounded">
-          <h3 className="font-semibold">Abracadabra — Booker</h3>
-          <p className="text-sm text-white/70">Material para bookers e oportunidades.</p>
-          <a className="mt-2 inline-block text-sm underline" href="/abracadabra.pdf" download>Download Booker</a>
-        </div>
-      </div>
+    <div className="min-h-screen bg-primary text-white flex flex-col items-center justify-center p-4">
+      <h1 className="text-3xl font-bold mb-4">Downloads</h1>
+      <p className="mb-6 text-center">Baixe nossos materiais e conteúdos exclusivos.</p>
+      <ul className="space-y-3">
+        <li>
+          <a href="/home.pdf" target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">
+            📄 Home.pdf
+          </a>
+        </li>
+        <li>
+          <a href="/abracadabra.pdf" target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">
+            📄 Abracadabra.pdf
+          </a>
+        </li>
+      </ul>
     </div>
   );
 };

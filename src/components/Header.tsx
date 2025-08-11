@@ -4,6 +4,15 @@ import CloseIcon from './icons/CloseIcon';
 import InstagramIcon from './icons/InstagramIcon';
 import SoundCloudIcon from './icons/SoundCloudIcon';
 import SpotifyIcon from './icons/SpotifyIcon';
+import React from "react";
+
+interface Props {
+  activeScreen: string | null;
+  onNavigateDownloads: () => void;
+  onNavigateHome: () => void;
+  onNavigateToPage: (page: string) => void;
+  onOpenSignUpModal: () => void;
+}
 
 const Header: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);

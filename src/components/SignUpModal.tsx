@@ -1,28 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface Props {
-  isOpen: boolean;
   onClose: () => void;
-  onSwitchToLogin?: () => void;
+  onSubmit: (email: string, password: string) => void;
 }
 
-const SignUpModal: React.FC<Props> = ({ isOpen, onClose, onSwitchToLogin }) => {
-  if (!isOpen) return null;
+const SignUpModal: React.FC<Props> = ({ onClose, onSubmit }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative z-10 bg-gray-900 p-6 rounded max-w-md w-full">
-        <h3 className="text-xl mb-2">Inscreva-se</h3>
-        <p className="text-sm text-white/70 mb-4">Crie sua conta para acessar conteúdo exclusivo.</p>
-        <div className="flex gap-2">
-          <input className="flex-1 px-3 py-2 rounded bg-black/20" placeholder="Email" />
-          <input className="flex-1 px-3 py-2 rounded bg-black/20" placeholder="Senha" type="password" />
-        </div>
-        <div className="mt-4 flex justify-between items-center">
-          <button onClick={onClose} className="px-3 py-2 rounded bg-gray-700">Fechar</button>
-          <div>
-            <button onClick={onSwitchToLogin} className="px-3 py-2 rounded bg-green-600">Já tenho conta</button>
-          </div>
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-sm">
+        <h2 className="text-lg font-bold mb-4">Criar Conta</h2>
+        <input
+          type="email"
+          placeholder="E-mail"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border p-2 mb-3 rounded"
+        />
+        <input
+          type="password"
+          placeholder="Senha"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border p-2 mb-3 rounded"
+        />
+        <div className="flex justify-end gap-2">
+          <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
+            Cancelar
+          </button>
+          <button
+            onClick={() => onSubmit(email, password)}
+            className="px-4 py-2 bg-gold text-black rounded"
+          >
+            Criar
+          </button>
         </div>
       </div>
     </div>

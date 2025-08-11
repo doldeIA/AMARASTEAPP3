@@ -1,114 +1,70 @@
-// src/App.tsx
 import React, { useEffect, useRef, useState } from "react";
 
-/**
- * App.tsx - versão completa e minimal para deploy Vercel
- * - Chat fica desabilitado quando a variável VITE_API_KEY não estiver setada.
- * - sendToGenAI(...) é o ponto que você mencionou: cole seu FETCH/STREAM aí.
- * - O resto preserva a navegação básica: landing -> pdf viewer, loader, footer.
- */
-
-/* ---------- Config / Helpers ---------- */
-
-// Vite exposes env vars as import.meta.env.VITE_...
-// Also mantemos fallback para process.env (em testes locais)
+/* ---------- Config ---------- */
 const API_KEY =
   (import.meta && (import.meta as any).env && (import.meta as any).env.VITE_API_KEY) ||
   (typeof process !== "undefined" && (process.env as any).VITE_API_KEY) ||
   (typeof process !== "undefined" && (process.env as any).API_KEY) ||
   "";
 
-type Message = {
-  sender: "user" | "assistant";
-  text: string;
-};
+type Message = { sender: "user" | "assistant"; text: string };
 
 const useIsMounted = () => {
   const ref = useRef(false);
   useEffect(() => {
     ref.current = true;
-    return () => {
-      ref.current = false;
-    };
+    return () => { ref.current = false; };
   }, []);
   return ref;
 };
 
-/* ---------- Minimal GenAI integration point (you paste your fetch/stream here) ---------- */
-
-/**
- * sendToGenAI
- * - Recebe userText e retorna Promise<string> com resposta do assistente (texto simples).
- * - Se API_KEY não existir, retorna mensagem padrão e resolve rápido.
- *
- * SUBSTITUIR: abaixo tem um bloco comentado com EXEMPLO de fetch para Google Generative API.
- * Você disse que vai escrever o trecho fetch/stream — cole-o aqui, mantendo a mesma assinatura:
- *    async function sendToGenAI(userText: string): Promise<string> { ... }
- */
+/* ---------- GenAI function (replace with your fetch if you want) ---------- */
 async function sendToGenAI(userText: string): Promise<string> {
-  // Se não houver chave, mantenha chat desabilitado e retorne mensagem curta:
   if (!API_KEY) {
-    return Promise.resolve(
-      "Chat desabilitado — variável de ambiente VITE_API_KEY não foi encontrada."
-    );
+    return Promise.resolve("Chat desabilitado — configure VITE_API_KEY.");
   }
 
-  // --- Exemplo (comentado) de como fazer um POST simples para a API REST do Google GenAI ---
-  // OBS: verifique e adapte para o endpoint e body que você utiliza (modelo, parâmetros, stream etc).
-  //
+  // ------ Example commented fetch for Google Generative API (adapt to your endpoint) ------
   // const endpoint = "https://generativelanguage.googleapis.com/v1/models/YOUR_MODEL:generate";
-  // const body = {
-  //   // Exemplo genérico: adapte conforme a spec do endpoint que você usar
-  //   "prompt": userText,
-  //   "temperature": 0.7,
-  //   "maxOutputTokens": 512
-  // };
-  // const res = await fetch(endpoint, {
+  // const body = { prompt: userText, temperature: 0.7, maxOutputTokens: 512 };
+  // const res = await fetch(endpoint + "?key=" + encodeURIComponent(API_KEY), {
   //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     // Se você usa API Key via query param use ?key=XXX no endpoint
-  //     "Authorization": `Bearer ${API_KEY}`, // ou use ?key=...
-  //   },
-  //   body: JSON.stringify(body),
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify(body)
   // });
-  // const j = await res.json();
-  // // Extrair texto conforme a resposta real da API
-  // return j?.candidates?.[0]?.content || j?.output?.[0]?.content || JSON.stringify(j);
+  // const data = await res.json();
+  // return data?.candidates?.[0]?.content || JSON.stringify(data);
 
-  // --- Implementação fallback simples (retorno mock) enquanto você cola seu fetch ---
-  await new Promise((r) => setTimeout(r, 350)); // simula latência
-  return `Resposta simulada do assistente para: "${userText}"`;
+  // Fallback simulated response (keeps UI working)
+  await new Promise((r) => setTimeout(r, 350));
+  return `Resposta simulada para: "${userText}"`;
 }
 
-/* ---------- App Component (com UI mínima e chat inativo se API_KEY ausente) ---------- */
-
-const PDF_PATH = "/home.pdf"; // substitua se precisar
+/* ---------- App ---------- */
+const PDF_PATH = "/home.pdf";
 
 const App: React.FC = () => {
-  const [screen, setScreen] = useState<"landing" | "pdf" | "integrating">("landing");
+  const [screen, setScreen] = useState<"landing" | "integrating" | "pdf">("landing");
   const [isIntegrating, setIsIntegrating] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { sender: "assistant", text: "Olá! Pronto para ajudar com o AmarasteApp." },
+    { sender: "assistant", text: "Integração OK ✅\nOlá! Estou pronto para ajudar com o AmarasteApp." }
   ]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
-
-  const isMountedRef = useIsMounted();
+  const isMounted = useIsMounted();
 
   const chatEnabled = !!API_KEY;
 
   useEffect(() => {
     if (screen === "integrating") {
-      // Simula processo de integração (ex.: pré-carregar PDFs)
       setTimeout(() => {
-        if (isMountedRef.current) {
+        if (isMounted.current) {
           setScreen("pdf");
           setIsIntegrating(false);
         }
-      }, 800);
+      }, 700);
     }
-  }, [screen, isMountedRef]);
+  }, [screen, isMounted]);
 
   const handleAccess = () => {
     setIsIntegrating(true);
@@ -118,24 +74,21 @@ const App: React.FC = () => {
   const handleSend = async () => {
     const text = input.trim();
     if (!text) return;
+    setInput("");
+    setMessages((m) => [...m, { sender: "user", text }]);
+
     if (!chatEnabled) {
-      // feedback local: não envia
-      setMessages((m) => [...m, { sender: "user", text }, { sender: "assistant", text: "Chat está desabilitado (sem chave de API)." }]);
-      setInput("");
+      setMessages((m) => [...m, { sender: "assistant", text: "Chat está desabilitado — configure VITE_API_KEY." }]);
       return;
     }
 
-    // add user message
-    setMessages((m) => [...m, { sender: "user", text }]);
-    setInput("");
     setIsSending(true);
-
     try {
       const reply = await sendToGenAI(text);
       setMessages((m) => [...m, { sender: "assistant", text: reply }]);
-    } catch (err: any) {
-      console.error("Erro ao chamar GenAI:", err);
-      setMessages((m) => [...m, { sender: "assistant", text: "Erro: não foi possível obter resposta do assistente." }]);
+    } catch (err) {
+      console.error(err);
+      setMessages((m) => [...m, { sender: "assistant", text: "Erro ao obter resposta do assistente." }]);
     } finally {
       setIsSending(false);
     }
@@ -143,32 +96,20 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen ${screen === "landing" ? "bg-primary" : "bg-black"} text-white`}>
-      {/* Header */}
       <header className="w-full py-4 px-6 flex justify-between items-center">
         <h1 className="text-xl font-bold">Amarasté App</h1>
         <div className="text-sm">
-          {chatEnabled ? (
-            <span className="px-2 py-1 rounded bg-green-700">Chat: ativo</span>
-          ) : (
-            <span className="px-2 py-1 rounded bg-gray-600">Chat: desabilitado</span>
-          )}
+          {chatEnabled ? <span className="px-2 py-1 rounded bg-green-700">Chat: ativo</span> : <span className="px-2 py-1 rounded bg-gray-600">Chat: desabilitado</span>}
         </div>
       </header>
 
-      {/* Main */}
       <main className="w-full max-w-5xl mx-auto px-6 py-10">
         {screen === "landing" && (
           <div className="flex flex-col items-center">
             <div className="w-full max-w-2xl text-center">
               <h2 className="text-4xl font-serif mb-6">Integração OK ✅</h2>
               <p className="mb-6 text-lg">Clique em ACESSAR para entrar no conteúdo.</p>
-              <button
-                onClick={handleAccess}
-                aria-label="Acessar"
-                className="px-8 py-3 rounded-md bg-white text-black font-bold shadow-lg"
-              >
-                ACESSAR
-              </button>
+              <button onClick={handleAccess} aria-label="Acessar" className="px-8 py-3 rounded-md bg-white text-black font-bold shadow-lg">ACESSAR</button>
             </div>
           </div>
         )}
@@ -193,7 +134,6 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Visualizador simples - usamos <object> para PDFs estáticos em /public */}
             <div className="bg-white text-black rounded-lg shadow-lg overflow-hidden">
               <object data={PDF_PATH} type="application/pdf" width="100%" height="720">
                 <div className="p-6">
@@ -203,14 +143,12 @@ const App: React.FC = () => {
               </object>
             </div>
 
-            {/* Area de Chat (simples) */}
             <div className="mt-8">
               <h3 className="text-xl mb-3">Chat (assistente)</h3>
-
               <div className="bg-gray-900 p-4 rounded-md max-w-2xl">
                 <div className="max-h-48 overflow-y-auto mb-3">
-                  {messages.map((m, idx) => (
-                    <div key={idx} className={`mb-2 ${m.sender === "assistant" ? "text-left" : "text-right"}`}>
+                  {messages.map((m, i) => (
+                    <div key={i} className={`mb-2 ${m.sender === "assistant" ? "text-left" : "text-right"}`}>
                       <div className={`inline-block px-3 py-2 rounded ${m.sender === "assistant" ? "bg-gray-800" : "bg-blue-600"}`}>
                         <small className="block opacity-80">{m.sender}</small>
                         <div>{m.text}</div>
@@ -220,35 +158,20 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded bg-black/30 outline-none"
-                    placeholder={chatEnabled ? "Digite sua mensagem..." : "Chat desabilitado — configure VITE_API_KEY"}
-                    disabled={!chatEnabled}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !isSending) handleSend();
-                    }}
-                  />
-                  <button
-                    onClick={handleSend}
-                    disabled={!chatEnabled || isSending}
-                    className={`px-4 py-2 rounded ${!chatEnabled || isSending ? "bg-gray-600 cursor-not-allowed" : "bg-green-600"}`}
-                  >
+                  <input value={input} onChange={(e) => setInput(e.target.value)} className="flex-1 px-3 py-2 rounded bg-black/30 outline-none"
+                         placeholder={chatEnabled ? "Digite sua mensagem..." : "Chat desabilitado — configure VITE_API_KEY"} disabled={!chatEnabled}
+                         onKeyDown={(e) => { if (e.key === "Enter" && !isSending) handleSend(); }} />
+                  <button onClick={handleSend} disabled={!chatEnabled || isSending} className={`px-4 py-2 rounded ${!chatEnabled || isSending ? "bg-gray-600 cursor-not-allowed" : "bg-green-600"}`}>
                     {isSending ? "Enviando..." : "Enviar"}
                   </button>
                 </div>
               </div>
             </div>
-
           </div>
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="text-center py-6 text-sm text-white/70">
-        Direitos Autorais © 2025 Amarasté Live
-      </footer>
+      <footer className="text-center py-6 text-sm text-white/70">Direitos Autorais © 2025 Amarasté Live</footer>
     </div>
   );
 };

@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/esm/Page/TextLayer.css";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+import "react-pdf/dist/Page/AnnotationLayer.css";
 
+// Configuração necessária para carregar o PDF no React-PDF
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-interface Props {
-  fileUrl?: string;
+interface PdfViewerScreenProps {
+  fileUrl: string; // URL do PDF ou caminho local em /public
 }
 
-export default function PdfViewerScreen({ fileUrl }: Props) {
+export default function PdfViewerScreen({ fileUrl }: PdfViewerScreenProps) {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
 
@@ -19,36 +20,40 @@ export default function PdfViewerScreen({ fileUrl }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-center p-4">
-      {fileUrl ? (
-        <>
-          <Document file={fileUrl} onLoadSuccess={onDocumentLoadSuccess}>
-            <Page pageNumber={pageNumber} />
-          </Document>
-          <div className="mt-4 flex gap-4">
-            <button
-              onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
-              disabled={pageNumber <= 1}
-              className="px-4 py-2 bg-gray-300 rounded"
-            >
-              Página Anterior
-            </button>
-            <p>
-              Página {pageNumber} de {numPages}
-            </p>
-            <button
-              onClick={() =>
-                setPageNumber((prev) => Math.min(prev + 1, numPages))
-              }
-              disabled={pageNumber >= numPages}
-              className="px-4 py-2 bg-gray-300 rounded"
-            >
-              Próxima Página
-            </button>
-          </div>
-        </>
-      ) : (
-        <p className="text-gray-500">Nenhum PDF carregado.</p>
+    <div className="flex flex-col items-center p-4 bg-gray-100 min-h-screen">
+      <h1 className="text-xl font-bold mb-4">Visualizador de PDF</h1>
+
+      <div className="bg-white shadow-lg p-4 rounded-lg max-w-full overflow-auto">
+        <Document
+          file={fileUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+          loading={<p>Carregando PDF...</p>}
+          error={<p>Erro ao carregar PDF.</p>}
+        >
+          <Page pageNumber={pageNumber} width={800} />
+        </Document>
+      </div>
+
+      {numPages > 1 && (
+        <div className="mt-4 flex gap-2">
+          <button
+            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+            onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+            disabled={pageNumber <= 1}
+          >
+            Anterior
+          </button>
+          <span>
+            Página {pageNumber} de {numPages}
+          </span>
+          <button
+            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+            onClick={() => setPageNumber((prev) => Math.min(prev + 1, numPages))}
+            disabled={pageNumber >= numPages}
+          >
+            Próxima
+          </button>
+        </div>
       )}
     </div>
   );

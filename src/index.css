@@ -1,0 +1,44 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body { margin:0; font-family: system-ui, sans-serif; }
+
+/* estilo base pequeno para preservar estética */
+:root {
+  --color-primary: #A13500;
+}
+body {
+  background-color: var(--color-primary);
+  margin: 0;
+  font-family: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+
+
+/* Neon / pulse / glow helpers */
+@keyframes neonPulse {
+  0%,100% { box-shadow: 0 0 8px rgba(255,255,255,1); }A
+  50% { box-shadow: 0 0 4px rgba(255,255,255,0.7); }
+}
+.neon-pulse { animation: neonPulse 0.4s infinite ease-in-out; }
+
+@keyframes neonBlinkRed {
+  0%,100% { filter: drop-shadow(0 0 0.5px rgba(228,27,23,0.8)); }
+  50% { filter: drop-shadow(0 0 0.25px rgba(228,27,23,0.6)); }
+}
+.neon-blink-red { animation: neonBlinkRed 0.8s infinite; }
+
+/* small layout helpers used by components */
+.full-center { display:flex; align-items:center; justify-content:center; }
+.min-h-screen { min-height: 100vh; }
+
+/* integrating loader quick style */
+.integrating-box {
+  background: rgba(0,0,0,0.45);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align:center;
+}
+
+/* preserve any other small classes used across components */

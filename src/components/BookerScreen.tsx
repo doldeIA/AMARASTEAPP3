@@ -1,17 +1,20 @@
 import React from "react";
 
 interface Props {
-  // keep placeholder signature, parent may expect navigation handlers
+  onSchedule: () => void;
 }
 
-const BookerScreen: React.FC<Props> = () => {
+const BookerScreen: React.FC<Props> = ({ onSchedule }) => {
   return (
-    <div className="p-6">
-      <h2 className="text-2xl mb-3">Booker</h2>
-      <p className="text-white/80">Tela de agendamento e booker — use o botão abaixo para link externo.</p>
-      <div className="mt-4">
-        <a className="px-4 py-2 bg-gold rounded text-black font-bold" href="https://wa.me/5575933002386" target="_blank" rel="noreferrer">Agendar via WhatsApp</a>
-      </div>
+    <div className="min-h-screen bg-primary text-white flex flex-col items-center justify-center p-6">
+      <h1 className="text-3xl font-bold mb-4">Agendamento</h1>
+      <p className="mb-6">Escolha a data e hora para seu evento.</p>
+      <button
+        onClick={onSchedule}
+        className="px-6 py-3 bg-gold text-black font-semibold rounded-lg shadow-lg hover:scale-105 transition-transform"
+      >
+        Agendar
+      </button>
     </div>
   );
 };

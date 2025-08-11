@@ -1,18 +1,10 @@
 import React from "react";
 
-interface Props {
-  onNavigate: (screen: string) => void;
-}
-
-const EcossistemaPage: React.FC<Props> = ({ onNavigate }) => {
+const EcossistemaPage: React.FC = () => {
   return (
-    <div className="p-6">
-      <h2 className="text-2xl mb-3">Ecossistema Amarasté</h2>
-      <p className="mb-4 text-white/80">Navegue para páginas internas do ecossistema.</p>
-      <div className="flex gap-3">
-        <button onClick={() => onNavigate("pdf")} className="px-3 py-2 bg-white/10 rounded">Home</button>
-        <button onClick={() => onNavigate("revolucao")} className="px-3 py-2 bg-white/10 rounded">Revolução</button>
-      </div>
+    <div className="min-h-screen bg-primary text-white p-6">
+      <h1 className="text-3xl font-bold mb-4">Ecossistema Amarasté</h1>
+      <p className="mb-4">Aqui você encontrará todas as conexões e integrações do nosso universo.</p>
     </div>
   );
 };

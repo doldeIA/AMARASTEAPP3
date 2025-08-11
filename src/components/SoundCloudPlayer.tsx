@@ -1,21 +1,26 @@
 import React from "react";
 
 interface Props {
-  onTalkAboutMusic?: () => void;
+  onTalkAboutMusic: () => void;
 }
 
 const SoundCloudPlayer: React.FC<Props> = ({ onTalkAboutMusic }) => {
   return (
-    <div className="mt-6 p-4 bg-white/5 rounded">
-      <div className="flex items-center justify-between">
-        <div>
-          <strong>SoundCloud Player</strong>
-          <p className="text-sm text-white/70">Player embed simplificado (fallback).</p>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={() => onTalkAboutMusic && onTalkAboutMusic()} className="px-3 py-1 rounded bg-green-600">Falar sobre música</button>
-        </div>
-      </div>
+    <div className="w-full max-w-2xl mx-auto py-6">
+      <iframe
+        width="100%"
+        height="166"
+        scrolling="no"
+        frameBorder="no"
+        allow="autoplay"
+        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/123456789&color=%23ff5500&inverse=false&auto_play=false&show_user=true"
+      ></iframe>
+      <button
+        onClick={onTalkAboutMusic}
+        className="mt-4 px-4 py-2 bg-gold text-black font-semibold rounded hover:scale-105 transition-transform"
+      >
+        Falar sobre música
+      </button>
     </div>
   );
 };

@@ -1,21 +1,10 @@
 import React from "react";
 
-interface Props {
-  onBack: () => void;
-}
-
-const AdminHomePage: React.FC<Props> = ({ onBack }) => {
+const AdminHomePage: React.FC = () => {
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl">Admin Home</h2>
-        <button onClick={onBack} className="text-sm underline">Voltar</button>
-      </div>
-
-      <div className="grid gap-4">
-        <div className="p-4 bg-white/5 rounded">Painel de operações rápidas.</div>
-        <div className="p-4 bg-white/5 rounded">Visualizar PDFs em cache, logs e uploads.</div>
-      </div>
+    <div className="min-h-screen bg-primary text-white flex flex-col items-center justify-center p-6">
+      <h1 className="text-3xl font-bold mb-4">Área Administrativa</h1>
+      <p>Escolha uma opção no menu para começar a gerenciar o site.</p>
     </div>
   );
 };

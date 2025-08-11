@@ -1,22 +1,10 @@
 import React from "react";
 
-interface Props {
-  onNavigateHome: () => void;
-  onNavigateToSignUp: () => void;
-}
-
-const ProdutosLoginPage: React.FC<Props> = ({ onNavigateHome, onNavigateToSignUp }) => {
+const ProdutosLoginPage: React.FC = () => {
   return (
-    <div className="p-6">
-      <h2 className="text-2xl mb-3">Login / Produtos</h2>
-      <div className="mb-4">
-        <input placeholder="Email" className="w-full p-2 rounded bg-black/20 mb-2" />
-        <input placeholder="Senha" type="password" className="w-full p-2 rounded bg-black/20" />
-      </div>
-      <div className="flex gap-2">
-        <button onClick={onNavigateHome} className="px-3 py-2 bg-green-600 rounded">Entrar</button>
-        <button onClick={onNavigateToSignUp} className="px-3 py-2 bg-white/10 rounded">Criar conta</button>
-      </div>
+    <div className="min-h-screen bg-primary text-white flex flex-col items-center justify-center p-6">
+      <h1 className="text-3xl font-bold mb-4">Login Produtos</h1>
+      <p>Acesse para ver e gerenciar seus produtos.</p>
     </div>
   );
 };

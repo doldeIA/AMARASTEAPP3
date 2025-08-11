@@ -18,13 +18,12 @@ import RevolucaoPage from "./components/RevolucaoPage";
 import ProdutosLoginPage from "./components/ProdutosLoginPage";
 
 /**
- * App.tsx
- * - Mantém a mesma estrutura de telas do projeto original.
- * - Chat fica automaticamente desativado se VITE_API_KEY não estiver setada (mensagem no console + UI).
- * - Onde indicado, cole seu fetch/stream da REST API do Google GenAI (eu disse que você faria esse trecho).
+ * Final integrated App.tsx
+ * - Works with the 15 stub components provided.
+ * - Chat is disabled automatically if import.meta.env.VITE_API_KEY is not set.
+ * - Where indicated there's a clear placeholder for your Google GenAI fetch/stream.
  */
 
-/* --- Type helpers --- */
 export type Screen =
   | "landing"
   | "pdf"
@@ -41,7 +40,7 @@ const BOOKER_PDF_PATH = "/abracadabra.pdf";
 
 const getInitialGreetingMessage = (): Message => ({
   sender: "assistant",
-  text: "Boa quinta-feira! Que bom ter você aqui. Sobre o que você gostaria de falar hoje?",
+  text: "Boa Quinta-feira! Que bom ter você aqui. Sobre o que você gostaria de falar hoje?",
 });
 
 const App: React.FC = () => {
@@ -52,19 +51,19 @@ const App: React.FC = () => {
   const [bookerPdfUrl, setBookerPdfUrl] = useState<string | null>(null);
   const [uploadCount, setUploadCount] = useState(0);
 
-  // Chat-related state
+  // Chat state
   const [messages, setMessages] = useState<Message[]>([getInitialGreetingMessage()]);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
 
-  // Admin / modals
+  // Modals / admin
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [lastScreenBeforeAdmin, setLastScreenBeforeAdmin] = useState<Screen>("landing");
 
-  // feature-flag: disable chat if no API key in build env
+  // Feature-flag: chat availability from env
   const VITE_API_KEY = import.meta.env.VITE_API_KEY;
   const isChatAvailable = Boolean(VITE_API_KEY);
 
@@ -74,30 +73,25 @@ const App: React.FC = () => {
     }
   }, [isChatAvailable]);
 
-  // Simulate preloading the main PDF from public/
+  // Handle clicking 'ACESSAR' on landing
   const handleAccess = async () => {
     setIsIntegrating(true);
-
     try {
-      // Try fetch the public PDF path (public/home.pdf). If it 404s, we show an alert.
       const res = await fetch(PDF_PATH, { method: "GET" });
       if (!res.ok) throw new Error("O arquivo PDF principal não foi encontrado.");
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setMainPdfUrl(url);
+      setMainPdfUrl(URL.createObjectURL(blob));
       setActiveScreen("pdf");
     } catch (err) {
       console.error("Integration process failed:", err);
-      alert("Não foi possível carregar o conteúdo. Verifique se /home.pdf existe em public/.");
+      alert("Não foi possível carregar o conteúdo principal (verifique public/home.pdf).");
       setIsIntegrating(false);
     }
   };
 
-  // Navigation handler
   const handleNavigate = (screen: Screen) => {
     if (screen === "booker") {
       setIsIntegrating(true);
-      // preload booker PDF
       (async () => {
         try {
           const res = await fetch(BOOKER_PDF_PATH);
@@ -119,11 +113,9 @@ const App: React.FC = () => {
 
   const handleGoBackFromDownloads = () => setActiveScreen("pdf");
 
-  // Chat send (placeholder). If chat is disabled, this will do nothing.
+  // Chat helpers
   const stopGenerationRef = useRef(false);
-  const handleStopGeneration = () => {
-    stopGenerationRef.current = true;
-  };
+  const handleStopGeneration = () => (stopGenerationRef.current = true);
 
   const handleSendMessage = async (userInput: string) => {
     if (!userInput.trim() || isChatLoading) return;
@@ -132,38 +124,37 @@ const App: React.FC = () => {
       return;
     }
 
-    // add user message
     setMessages((prev) => [...prev, { sender: "user", text: userInput }]);
     setIsChatLoading(true);
     setChatError(null);
 
-    // --- PLACEHOLDER: cole aqui o seu fetch/stream para a REST API do Google GenAI ---
-    // Example skeleton (you will replace with your streaming logic):
+    // ========== PLACEHOLDER: Cole aqui seu fetch/stream para a REST API do Google GenAI ==========
+    // Example skeleton (replace with your streaming logic):
     //
     // try {
-    //   const res = await fetch("/api/genai", {
+    //   const resp = await fetch("YOUR_GENAI_ENDPOINT", {
     //     method: "POST",
-    //     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${VITE_API_KEY}` },
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: `Bearer ${VITE_API_KEY}`,
+    //     },
     //     body: JSON.stringify({ prompt: userInput })
     //   });
-    //   const data = await res.json();
-    //   setMessages(prev => [...prev, { sender: "assistant", text: data?.text || "Resposta vazia" }]);
-    // } catch (e) {
-    //   setChatError("Erro ao falar com o assistente.");
+    //   const json = await resp.json();
+    //   setMessages(prev => [...prev, { sender: "assistant", text: json.text || "Sem resposta" }]);
+    // } catch (err) {
+    //   setChatError("Erro ao conectar ao assistente.");
     // }
     //
-    // Obs: Se você usar streaming, atualize o estado incrementalmente (eu deixei o placeholder para você colar).
-    // ---------------------------------------------------------------------
+    // ============================================================================================
 
-    // simple fallback (until you add your fetch):
+    // Simple fallback until you paste your fetch:
     await new Promise((r) => setTimeout(r, 600));
-    setMessages((prev) => [...prev, { sender: "assistant", text: "Resposta de exemplo (substitua pelo stream REST)." }]);
-
+    setMessages((prev) => [...prev, { sender: "assistant", text: "Resposta de exemplo — substitua pelo stream da API." }]);
     setIsChatLoading(false);
   };
 
   const handleUploadPdf = async (_file: File, _pageKey: string) => {
-    // Optional admin upload functionality — implement as needed in AdminPanel
     setUploadCount((c) => c + 1);
   };
   const handleRemovePdf = async (_pageKey: string) => {
@@ -200,7 +191,7 @@ const App: React.FC = () => {
           </div>
         );
       case "downloads":
-        return <DownloadsScreen onBack={handleGoBackFromDownloads} />;
+        return <DownloadsScreen />;
       case "booker":
         return (
           <div className="w-full relative min-h-screen">
@@ -222,15 +213,13 @@ const App: React.FC = () => {
           </div>
         );
       case "portalMagico":
-        return <EcossistemaPage onNavigate={handleNavigate} />;
+        return <EcossistemaPage />;
       case "revolucao":
-        return <RevolucaoPage onNavigateHome={() => handleNavigate("pdf")} />;
+        return <RevolucaoPage />;
       case "produtosLogin":
-        return (
-          <ProdutosLoginPage onNavigateHome={() => handleNavigate("pdf")} onNavigateToSignUp={() => setIsSignUpModalOpen(true)} />
-        );
+        return <ProdutosLoginPage />;
       case "adminHome":
-        return <AdminHomePage onBack={() => setActiveScreen(lastScreenBeforeAdmin)} />;
+        return <AdminHomePage />;
       default:
         return null;
     }
@@ -256,7 +245,7 @@ const App: React.FC = () => {
 
       {showMainApp && activeScreen !== "revolucao" && activeScreen !== "produtosLogin" && activeScreen !== "adminHome" && (
         <footer className="w-full text-center py-4">
-          <p className="text-xs text-white/50 font-sans">Direitos Autorais © 2025 Amarasté Live</p>
+          <p className="text-xs text-white/50">Direitos Autorais © 2025 Amarasté Live</p>
         </footer>
       )}
 
@@ -269,23 +258,22 @@ const App: React.FC = () => {
           messages={messages}
           isLoading={isChatLoading}
           error={chatError}
-          onClose={() => {
-            setIsChatOpen(false);
-          }}
+          onClose={() => setIsChatOpen(false)}
           onSendMessage={handleSendMessage}
           onStopGeneration={handleStopGeneration}
         />
       )}
 
-      <SignUpModal isOpen={isSignUpModalOpen} onClose={() => setIsSignUpModalOpen(false)} onSwitchToLogin={() => setActiveScreen("produtosLogin")} />
+      <SignUpModal
+        onClose={() => setIsSignUpModalOpen(false)}
+        onSubmit={(email) => {
+          // minimal behavior: close modal — customize later
+          console.log("Sign up submit (stub):", email);
+          setIsSignUpModalOpen(false);
+        }}
+      />
 
-      {isAdminPanelOpen && (
-        <AdminPanel
-          onClose={() => setIsAdminPanelOpen(false)}
-          onUpload={handleUploadPdf}
-          onRemove={handleRemovePdf}
-        />
-      )}
+      {isAdminPanelOpen && <AdminPanel />}
 
       {isAdminLoginModalOpen && <AdminLoginModal onClose={() => setIsAdminLoginModalOpen(false)} onLogin={handleAdminLogin} />}
 

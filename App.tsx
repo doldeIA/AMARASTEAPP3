@@ -3,6 +3,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { GoogleGenAI, Chat } from "@google/genai";
 import LandingScreen from "./components/LandingScreen";
 import PdfViewerScreen from "./components/PdfViewerScreen";
+
+export default function App() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <PdfViewerScreen fileUrl="/meu-arquivo.pdf" />
+    </div>
+  );
+}
+
 import Header from "./components/Header";
 import ChatWidget from "./components/ChatWidget";
 import ChatModal, { Message } from "./components/ChatModal";

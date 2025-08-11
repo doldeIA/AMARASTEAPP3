@@ -1,9 +1,8 @@
-/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* preserve your visual styles below - minimal example and safe defaults */
+/* Basic theme - preserves dark / primary look */
 :root {
   --color-primary: #A13500;
 }
@@ -12,9 +11,8 @@ body {
   @apply bg-[var(--color-primary)] text-white min-h-screen font-sans;
 }
 
-/* small helper so build not fail if your app imports /index.css at build time */
-#root {
-  min-height: 100vh;
+#root { min-height: 100vh; }
+
 }@tailwind base;
 @tailwind components;
 @tailwind utilities;

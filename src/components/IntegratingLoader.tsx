@@ -1,16 +1,19 @@
 import React from "react";
 
-export default function IntegratingLoader() {
+interface Props {
+  // keep placeholder signature, parent may expect navigation handlers
+}
+
+const BookerScreen: React.FC<Props> = () => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white rounded-lg p-6 text-center">
-        <div className="animate-spin mb-4" aria-hidden>
-          <svg className="w-8 h-8" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" stroke="black" strokeWidth="4" fill="none" strokeDasharray="60" />
-          </svg>
-        </div>
-        <div className="text-sm font-semibold">Integrando — aguarde...</div>
+    <div className="p-6">
+      <h2 className="text-2xl mb-3">Booker</h2>
+      <p className="text-white/80">Tela de agendamento e booker — use o botão abaixo para link externo.</p>
+      <div className="mt-4">
+        <a className="px-4 py-2 bg-gold rounded text-black font-bold" href="https://wa.me/5575933002386" target="_blank" rel="noreferrer">Agendar via WhatsApp</a>
       </div>
     </div>
   );
-}
+};
+
+export default BookerScreen;

@@ -3,6 +3,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* preserve your visual styles below - minimal example and safe defaults */
+:root {
+  --color-primary: #A13500;
+}
+
+body {
+  @apply bg-[var(--color-primary)] text-white min-h-screen font-sans;
+}
+
+/* small helper so build not fail if your app imports /index.css at build time */
+#root {
+  min-height: 100vh;
+}@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ajustes básicos */
 html, body, #root {
   height: 100%;

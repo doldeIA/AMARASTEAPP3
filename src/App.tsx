@@ -1,14 +1,24 @@
-import React from "react";
-import PdfViewerScreen from "./components/PdfViewerScreen";
+// exemplo de trecho em useEffect (substitua o bloco de inicialização do chat por este padrão)
+useEffect(() => {
+  const initializeChat = async () => {
+    try {
+      const apiKey = import.meta.env.VITE_API_KEY;
+      if (!apiKey) {
+        throw new Error("VITE_API_KEY environment variable not set.");
+      }
 
-export default function App() {
-  // Caminho do PDF na pasta public
-  const pdfUrl = "/home.pdf"; // coloque seu PDF na pasta public com esse nome
+      // Se você usar um pacote npm (ex: @google/genai) acrescente-o nas deps e então:
+      // const { GoogleGenAI } = await import('@google/genai');
+      // const ai = new GoogleGenAI({ apiKey });
+      // const chatSession = ai.chats.create({ model: 'gemini-2.5-flash', config: { systemInstruction } });
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-      <h1 className="text-2xl font-bold mb-6">Visualizador de PDF</h1>
-      <PdfViewerScreen fileUrl={pdfUrl} />
-    </div>
-  );
-}
+      // --- temporariamente: apenas setamos um placeholder se preferir ---
+      // setChat({} as any); // descomente e ajuste conforme seu fluxo
+    } catch (e: any) {
+      console.error("Failed to initialize AI Chat:", e);
+      setChatError("Não foi possível iniciar o chat. Verifique a chave da API.");
+    }
+  };
+
+  initializeChat();
+}, []);

@@ -3,7 +3,7 @@ import PdfViewerScreen from "./components/PdfViewerScreen";
 
 export default function App() {
   // Caminho do PDF na pasta public
-  const pdfUrl = "/documento.pdf"; // coloque seu PDF na pasta public com esse nome
+  const pdfUrl = "/home.pdf"; // coloque seu PDF na pasta public com esse nome
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">

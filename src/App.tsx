@@ -1,11 +1,9 @@
-// src/App.tsx
 import React, { useState } from "react";
 import LandingScreen from "./components/LandingScreen";
 import PdfViewerScreen from "./components/PdfViewerScreen";
-import Header from "./components/Header";
 import IntegratingLoader from "./components/IntegratingLoader";
 
-type Screen = "landing" | "pdf" | "downloads" | null;
+type Screen = "landing" | "pdf" | null;
 const PDF_PATH = "/home.pdf";
 
 const App: React.FC = () => {
@@ -31,29 +29,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`w-full min-h-screen ${activeScreen === "landing" ? "bg-primary" : "bg-black"}`}>
-      {activeScreen !== "landing" && (
-        <Header
-          activeScreen={activeScreen}
-          onNavigateHome={() => setActiveScreen("pdf")}
-          onNavigateDownloads={() => setActiveScreen("downloads")}
-          onNavigateToPage={(p) => setActiveScreen(p as Screen)}
-          onOpenSignUpModal={() => {}}
-        />
-      )}
-
+    <div className="w-full min-h-screen">
       {activeScreen === "landing" && <LandingScreen onAccess={handleAccess} />}
-
-      {activeScreen === "pdf" && (
-        <PdfViewerScreen
-          preloadedFileUrl={mainPdfUrl}
-          fallbackPath={PDF_PATH}
-          onPage1Rendered={() => setIsIntegrating(false)}
-        />
-      )}
-
+      {activeScreen === "pdf" && <PdfViewerScreen preloadedFileUrl={mainPdfUrl} />}
       {isIntegrating && <IntegratingLoader />}
-
       <footer className="w-full text-center py-4 text-white/60">Direitos © 2025 Amarasté Live</footer>
     </div>
   );

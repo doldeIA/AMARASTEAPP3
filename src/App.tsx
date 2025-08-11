@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import LandingScreen from "./components/LandingScreen";
 import PdfViewerScreen from "./components/PdfViewerScreen";
 import Header from "./components/Header";
-import IntegratingLoader from './components/IntegratingLoader.tsx';
-
+function IntegratingLoader() {
+  return <div>Loading...</div>;
+}
 type Screen = "landing" | "pdf" | "downloads" | null;
 
 const PDF_PATH = "/home.pdf";

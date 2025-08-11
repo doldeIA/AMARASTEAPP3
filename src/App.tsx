@@ -1,267 +1,295 @@
-import React, { useEffect, useState } from "react";
+// src/App.tsx
+import React, { useEffect, useRef, useState } from "react";
+import LandingScreen from "./components/LandingScreen";
+import PdfViewerScreen from "./components/PdfViewerScreen";
 import Header from "./components/Header";
-import "./index.css";
+import ChatWidget from "./components/ChatWidget";
+import ChatModal, { Message } from "./components/ChatModal";
+import IntegratingLoader from "./components/IntegratingLoader";
+import SoundCloudPlayer from "./components/SoundCloudPlayer";
+import DownloadsScreen from "./components/DownloadsScreen";
+import SignUpModal from "./components/SignUpModal";
+import AdminPanel from "./components/AdminPanel";
+import AdminLoginModal from "./components/AdminLoginModal";
+import AdminHomePage from "./components/AdminHomePage";
+import BookerScreen from "./components/BookerScreen";
+import EcossistemaPage from "./components/EcossistemaPage";
+import RevolucaoPage from "./components/RevolucaoPage";
+import ProdutosLoginPage from "./components/ProdutosLoginPage";
 
 /**
- * App.tsx - Versão final para deploy no Vercel
- * - PDF viewer (main + booker)
- * - Landing "ACESSAR" (integracao simulado)
- * - Chat placeholder (desativado por padrão)
- * - Spots claros para inserir fetch/stream do Google GenAI (você mencionou que colocará)
- *
- * OBS:
- *  - PDFs referenciados: /home.pdf  e /abracadabra.pdf
- *  - Se você usar outras rotas/nomes, atualize as constantes abaixo.
+ * App.tsx
+ * - Mantém a mesma estrutura de telas do projeto original.
+ * - Chat fica automaticamente desativado se VITE_API_KEY não estiver setada (mensagem no console + UI).
+ * - Onde indicado, cole seu fetch/stream da REST API do Google GenAI (eu disse que você faria esse trecho).
  */
 
-const PDF_MAIN = "/home.pdf";
-const PDF_BOOKER = "/abracadabra.pdf";
+/* --- Type helpers --- */
+export type Screen =
+  | "landing"
+  | "pdf"
+  | "downloads"
+  | "booker"
+  | "portalMagico"
+  | "revolucao"
+  | "produtosLogin"
+  | "adminHome"
+  | null;
 
-type Screen = "landing" | "pdf" | "booker" | "downloads" | "none";
+const PDF_PATH = "/home.pdf";
+const BOOKER_PDF_PATH = "/abracadabra.pdf";
 
-const getApiKey = (): string => {
-  // Vite: variáveis de ambiente começam com VITE_ (recomendado)
-  // Mas mantemos fallback para process.env.API_KEY caso você injetou no Vercel como process.env
-  // (algumas configs anteriores usavam process.env.API_KEY).
-  return (import.meta.env as any).VITE_API_KEY || (process.env as any).API_KEY || "";
-};
+const getInitialGreetingMessage = (): Message => ({
+  sender: "assistant",
+  text: "Boa quinta-feira! Que bom ter você aqui. Sobre o que você gostaria de falar hoje?",
+});
 
 const App: React.FC = () => {
-  const [screen, setScreen] = useState<Screen>("landing");
+  const [activeScreen, setActiveScreen] = useState<Screen>("landing");
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isIntegrating, setIsIntegrating] = useState(false);
   const [mainPdfUrl, setMainPdfUrl] = useState<string | null>(null);
   const [bookerPdfUrl, setBookerPdfUrl] = useState<string | null>(null);
-  const [chatEnabled] = useState<boolean>(false); // chat desativado por padrão
-  const [apiKey] = useState<string>(getApiKey());
+  const [uploadCount, setUploadCount] = useState(0);
+
+  // Chat-related state
+  const [messages, setMessages] = useState<Message[]>([getInitialGreetingMessage()]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+
+  // Admin / modals
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [lastScreenBeforeAdmin, setLastScreenBeforeAdmin] = useState<Screen>("landing");
+
+  // feature-flag: disable chat if no API key in build env
+  const VITE_API_KEY = import.meta.env.VITE_API_KEY;
+  const isChatAvailable = Boolean(VITE_API_KEY);
 
   useEffect(() => {
-    // Apenas log para saber se a chave está definida
-    if (!apiKey) {
-      console.warn("VITE_API_KEY not set. Chat will be disabled until you configure the env var in Vercel.");
-    } else {
-      console.info("API key present (masked). Chat can be enabled.");
+    if (!isChatAvailable) {
+      console.warn("VITE_API_KEY not set. Chat disabled.");
     }
-  }, [apiKey]);
+  }, [isChatAvailable]);
 
-  // Simples preloading do PDF principal (fetch e criar object url)
-  const preloadMainPdf = async () => {
+  // Simulate preloading the main PDF from public/
+  const handleAccess = async () => {
+    setIsIntegrating(true);
+
     try {
-      setIsIntegrating(true);
-      const res = await fetch(PDF_MAIN);
+      // Try fetch the public PDF path (public/home.pdf). If it 404s, we show an alert.
+      const res = await fetch(PDF_PATH, { method: "GET" });
       if (!res.ok) throw new Error("O arquivo PDF principal não foi encontrado.");
       const blob = await res.blob();
-      setMainPdfUrl(URL.createObjectURL(blob));
-      setScreen("pdf");
-    } catch (e) {
-      console.error("Failed to preload main PDF:", e);
-      alert("Não foi possível carregar o PDF principal. Verifique se home.pdf está na pasta public.");
-    } finally {
+      const url = URL.createObjectURL(blob);
+      setMainPdfUrl(url);
+      setActiveScreen("pdf");
+    } catch (err) {
+      console.error("Integration process failed:", err);
+      alert("Não foi possível carregar o conteúdo. Verifique se /home.pdf existe em public/.");
       setIsIntegrating(false);
     }
   };
 
-  const preloadBookerPdf = async () => {
-    try {
+  // Navigation handler
+  const handleNavigate = (screen: Screen) => {
+    if (screen === "booker") {
       setIsIntegrating(true);
-      const res = await fetch(PDF_BOOKER);
-      if (!res.ok) throw new Error("O arquivo PDF do booker não foi encontrado.");
-      const blob = await res.blob();
-      setBookerPdfUrl(URL.createObjectURL(blob));
-      setScreen("booker");
-    } catch (e) {
-      console.error("Failed to preload booker PDF:", e);
-      alert("Não foi possível carregar o PDF do booker. Verifique se abracadabra.pdf está na pasta public.");
-    } finally {
-      setIsIntegrating(false);
+      // preload booker PDF
+      (async () => {
+        try {
+          const res = await fetch(BOOKER_PDF_PATH);
+          if (!res.ok) throw new Error("Arquivo do booker não encontrado.");
+          const blob = await res.blob();
+          setBookerPdfUrl(URL.createObjectURL(blob));
+          setActiveScreen("booker");
+        } catch (err) {
+          console.error("Booker integration failed:", err);
+          alert("Não foi possível carregar o PDF do booker.");
+        } finally {
+          setIsIntegrating(false);
+        }
+      })();
+    } else {
+      setActiveScreen(screen);
     }
   };
 
-  // Handler do botão ACESSAR (landing)
-  const handleAccess = () => {
-    // Simular integração com loader e depois abrir o PDF.
-    preloadMainPdf();
+  const handleGoBackFromDownloads = () => setActiveScreen("pdf");
+
+  // Chat send (placeholder). If chat is disabled, this will do nothing.
+  const stopGenerationRef = useRef(false);
+  const handleStopGeneration = () => {
+    stopGenerationRef.current = true;
   };
 
-  // Lugar claro para você integrar a chamada REST do Google GenAI (fetch/stream)
-  // Exemplo: quando quiser enviar input do usuário -> faça fetch para sua rota
-  // function sendToGenAI(payload) { ... }  <= você implementa aqui
+  const handleSendMessage = async (userInput: string) => {
+    if (!userInput.trim() || isChatLoading) return;
+    if (!isChatAvailable) {
+      setChatError("Chat desabilitado: VITE_API_KEY não configurada.");
+      return;
+    }
+
+    // add user message
+    setMessages((prev) => [...prev, { sender: "user", text: userInput }]);
+    setIsChatLoading(true);
+    setChatError(null);
+
+    // --- PLACEHOLDER: cole aqui o seu fetch/stream para a REST API do Google GenAI ---
+    // Example skeleton (you will replace with your streaming logic):
+    //
+    // try {
+    //   const res = await fetch("/api/genai", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${VITE_API_KEY}` },
+    //     body: JSON.stringify({ prompt: userInput })
+    //   });
+    //   const data = await res.json();
+    //   setMessages(prev => [...prev, { sender: "assistant", text: data?.text || "Resposta vazia" }]);
+    // } catch (e) {
+    //   setChatError("Erro ao falar com o assistente.");
+    // }
+    //
+    // Obs: Se você usar streaming, atualize o estado incrementalmente (eu deixei o placeholder para você colar).
+    // ---------------------------------------------------------------------
+
+    // simple fallback (until you add your fetch):
+    await new Promise((r) => setTimeout(r, 600));
+    setMessages((prev) => [...prev, { sender: "assistant", text: "Resposta de exemplo (substitua pelo stream REST)." }]);
+
+    setIsChatLoading(false);
+  };
+
+  const handleUploadPdf = async (_file: File, _pageKey: string) => {
+    // Optional admin upload functionality — implement as needed in AdminPanel
+    setUploadCount((c) => c + 1);
+  };
+  const handleRemovePdf = async (_pageKey: string) => {
+    setUploadCount((c) => c + 1);
+  };
+
+  const handleAdminLogin = (user: string, pass: string) => {
+    if (user === "1234" && pass === "1234") {
+      setIsAdminLoggedIn(true);
+      setIsAdminLoginModalOpen(false);
+      setActiveScreen("adminHome");
+      return true;
+    }
+    return false;
+  };
+
+  const showMainApp = activeScreen !== "landing";
+
+  const renderContent = () => {
+    switch (activeScreen) {
+      case "landing":
+        return <LandingScreen onAccess={handleAccess} />;
+      case "pdf":
+        return (
+          <div className="w-full">
+            <PdfViewerScreen
+              key={`pdf-${uploadCount}`}
+              pageKey="pdf"
+              fallbackPath={PDF_PATH}
+              preloadedFileUrl={mainPdfUrl ?? undefined}
+              onPage1Rendered={() => setIsIntegrating(false)}
+            />
+            <SoundCloudPlayer onTalkAboutMusic={() => setIsChatOpen(true)} />
+          </div>
+        );
+      case "downloads":
+        return <DownloadsScreen onBack={handleGoBackFromDownloads} />;
+      case "booker":
+        return (
+          <div className="w-full relative min-h-screen">
+            <PdfViewerScreen
+              key={`booker-${uploadCount}`}
+              pageKey="booker"
+              fallbackPath={BOOKER_PDF_PATH}
+              preloadedFileUrl={bookerPdfUrl ?? undefined}
+              onPage1Rendered={() => setIsIntegrating(false)}
+            />
+            <div className="w-full max-w-3xl mx-auto pb-12 px-4">
+              <button
+                onClick={() => window.open("https://wa.me/5575933002386", "_blank", "noopener")}
+                className="w-full py-4 bg-gold text-white font-bold rounded-lg shadow-lg transition-transform duration-200 active:scale-95 focus:outline-none"
+              >
+                Agendar
+              </button>
+            </div>
+          </div>
+        );
+      case "portalMagico":
+        return <EcossistemaPage onNavigate={handleNavigate} />;
+      case "revolucao":
+        return <RevolucaoPage onNavigateHome={() => handleNavigate("pdf")} />;
+      case "produtosLogin":
+        return (
+          <ProdutosLoginPage onNavigateHome={() => handleNavigate("pdf")} onNavigateToSignUp={() => setIsSignUpModalOpen(true)} />
+        );
+      case "adminHome":
+        return <AdminHomePage onBack={() => setActiveScreen(lastScreenBeforeAdmin)} />;
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="min-h-screen w-full bg-primary text-white antialiased">
-      <Header />
+    <div
+      className={`w-full min-h-screen ${showMainApp ? "bg-black" : "bg-primary"} transition-colors duration-500 ease-out ${
+        activeScreen === "landing" || activeScreen === null ? "overflow-hidden" : "overflow-y-auto"
+      }`}
+    >
+      {showMainApp && (
+        <Header
+          activeScreen={activeScreen}
+          onNavigateDownloads={() => handleNavigate("downloads")}
+          onNavigateHome={() => handleNavigate("pdf")}
+          onNavigateToPage={(p) => handleNavigate(p as Screen)}
+          onOpenSignUpModal={() => setIsSignUpModalOpen(true)}
+        />
+      )}
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
-        {/* Landing Screen */}
-        {screen === "landing" && (
-          <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
-            <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-extrabold neon-pulse">Amarasté Live</h2>
-              <p className="text-white/80 mt-2">Portal dimensional da sua identidade sonora.</p>
-            </div>
+      {renderContent()}
 
-            <button
-              onClick={handleAccess}
-              className="px-8 py-3 rounded-lg bg-gold text-black font-bold neon-pulse border border-white/20 shadow-lg"
-              aria-label="Acessar conteúdo"
-            >
-              ACESSAR
-            </button>
+      {showMainApp && activeScreen !== "revolucao" && activeScreen !== "produtosLogin" && activeScreen !== "adminHome" && (
+        <footer className="w-full text-center py-4">
+          <p className="text-xs text-white/50 font-sans">Direitos Autorais © 2025 Amarasté Live</p>
+        </footer>
+      )}
 
-            <div className="text-sm text-white/60">
-              <p>Se preferir, abra diretamente o PDF principal (download disponível).</p>
-              <div className="mt-3 flex gap-3 justify-center">
-                <button
-                  onClick={() => preloadMainPdf()}
-                  className="px-4 py-2 rounded bg-white/10 hover:bg-white/20"
-                >
-                  Abrir PDF (principal)
-                </button>
-                <button
-                  onClick={() => preloadBookerPdf()}
-                  className="px-4 py-2 rounded bg-white/10 hover:bg-white/20"
-                >
-                  Abrir Booker
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      {showMainApp && activeScreen !== "downloads" && activeScreen !== "booker" && activeScreen !== "adminHome" && (
+        <ChatWidget onOpen={() => setIsChatOpen(true)} />
+      )}
 
-        {/* Integrating loader */}
-        {isIntegrating && (
-          <div className="w-full text-center py-6">
-            <div className="inline-flex items-center gap-3 px-4 py-3 bg-black/40 rounded">
-              <span className="animate-pulse">🔄</span>
-              <span>Integrando... aguarde.</span>
-            </div>
-          </div>
-        )}
+      {isChatOpen && (
+        <ChatModal
+          messages={messages}
+          isLoading={isChatLoading}
+          error={chatError}
+          onClose={() => {
+            setIsChatOpen(false);
+          }}
+          onSendMessage={handleSendMessage}
+          onStopGeneration={handleStopGeneration}
+        />
+      )}
 
-        {/* PDF Screen */}
-        {screen === "pdf" && (
-          <section className="w-full">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <div>
-                <button
-                  onClick={() => setScreen("landing")}
-                  className="px-3 py-1 rounded bg-white/10 text-white"
-                >
-                  ← Voltar
-                </button>
-              </div>
+      <SignUpModal isOpen={isSignUpModalOpen} onClose={() => setIsSignUpModalOpen(false)} onSwitchToLogin={() => setActiveScreen("produtosLogin")} />
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    // Forçar re-preload se quiser
-                    preloadBookerPdf();
-                  }}
-                  className="px-3 py-1 rounded bg-white/10 text-white"
-                >
-                  Abrir Booker
-                </button>
-                <a
-                  href={PDF_MAIN}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1 rounded bg-gold text-black font-semibold"
-                >
-                  Baixar PDF
-                </a>
-              </div>
-            </div>
+      {isAdminPanelOpen && (
+        <AdminPanel
+          onClose={() => setIsAdminPanelOpen(false)}
+          onUpload={handleUploadPdf}
+          onRemove={handleRemovePdf}
+        />
+      )}
 
-            <div className="w-full rounded-lg overflow-hidden shadow-lg">
-              <object
-                data={mainPdfUrl || PDF_MAIN}
-                type="application/pdf"
-                className="w-full object-pdf-wrapper"
-              >
-                <div className="p-6 bg-white text-black">
-                  <p>Seu navegador não suporta visualização de PDF.</p>
-                  <a href={PDF_MAIN} className="underline text-gold" target="_blank" rel="noreferrer">
-                    Clique aqui para baixar o PDF.
-                  </a>
-                </div>
-              </object>
-            </div>
-          </section>
-        )}
+      {isAdminLoginModalOpen && <AdminLoginModal onClose={() => setIsAdminLoginModalOpen(false)} onLogin={handleAdminLogin} />}
 
-        {/* Booker Screen */}
-        {screen === "booker" && (
-          <section className="w-full">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <div>
-                <button
-                  onClick={() => setScreen("pdf")}
-                  className="px-3 py-1 rounded bg-white/10 text-white"
-                >
-                  ← Voltar
-                </button>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    // voltar para o principal
-                    preloadMainPdf();
-                  }}
-                  className="px-3 py-1 rounded bg-white/10 text-white"
-                >
-                  Abrir Principal
-                </button>
-                <a
-                  href={PDF_BOOKER}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1 rounded bg-gold text-black font-semibold"
-                >
-                  Baixar Booker
-                </a>
-              </div>
-            </div>
-
-            <div className="w-full rounded-lg overflow-hidden shadow-lg">
-              <object
-                data={bookerPdfUrl || PDF_BOOKER}
-                type="application/pdf"
-                className="w-full object-pdf-wrapper"
-              >
-                <div className="p-6 bg-white text-black">
-                  <p>Seu navegador não suporta visualização de PDF.</p>
-                  <a href={PDF_BOOKER} className="underline text-gold" target="_blank" rel="noreferrer">
-                    Clique aqui para baixar o PDF do Booker.
-                  </a>
-                </div>
-              </object>
-            </div>
-          </section>
-        )}
-
-        {/* Downloads placeholder */}
-        {screen === "downloads" && (
-          <section className="w-full">
-            <h3 className="text-xl font-semibold mb-2">Downloads</h3>
-            <p className="text-white/70">Lista de materiais para download (a implementar).</p>
-          </section>
-        )}
-      </main>
-
-      {/* Chat widget/footer area */}
-      <footer className="w-full py-6 bg-black/30">
-        <div className="max-w-5xl mx-auto px-4 flex items-center justify-between">
-          <div className="text-sm text-white/70">Direitos Autorais © {new Date().getFullYear()} Amarasté Live</div>
-
-          <div className="text-sm">
-            {chatEnabled ? (
-              <span className="text-green-300">Chat ativo</span>
-            ) : (
-              <span className="text-yellow-300">Chat desativado (configure VITE_API_KEY para ativar)</span>
-            )}
-          </div>
-        </div>
-      </footer>
+      {isIntegrating && <IntegratingLoader />}
     </div>
   );
 };

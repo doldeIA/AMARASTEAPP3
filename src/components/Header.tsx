@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import MenuIcon from './icons/MenuIcon';
+import { Menu } from "lucide-react";
 import CloseIcon from './icons/CloseIcon';
 import InstagramIcon from './icons/InstagramIcon';
 import SoundCloudIcon from './icons/SoundCloudIcon';

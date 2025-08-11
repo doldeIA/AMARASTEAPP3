@@ -1,60 +1,40 @@
-import { useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/Page/TextLayer.css";
-import "react-pdf/dist/Page/AnnotationLayer.css";
+import React, { useEffect } from "react";
 
-// Configuração necessária para carregar o PDF no React-PDF
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
-interface PdfViewerScreenProps {
-  fileUrl: string; // URL do PDF ou caminho local em /public
+interface Props {
+  pageKey: string;
+  fallbackPath?: string;
+  preloadedFileUrl?: string | null;
+  onPage1Rendered?: () => void;
 }
 
-export default function PdfViewerScreen({ fileUrl }: PdfViewerScreenProps) {
-  const [numPages, setNumPages] = useState<number>(0);
-  const [pageNumber, setPageNumber] = useState<number>(1);
+const PdfViewerScreen: React.FC<Props> = ({ pageKey, fallbackPath = "/home.pdf", preloadedFileUrl, onPage1Rendered }) => {
+  useEffect(() => {
+    // Simula renderização da primeira página e notifica o pai para esconder loader
+    const t = setTimeout(() => {
+      onPage1Rendered && onPage1Rendered();
+    }, 600);
+    return () => clearTimeout(t);
+  }, [onPage1Rendered]);
 
-  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    setNumPages(numPages);
-    setPageNumber(1);
-  }
+  const src = preloadedFileUrl || fallbackPath;
 
   return (
-    <div className="flex flex-col items-center p-4 bg-gray-100 min-h-screen">
-      <h1 className="text-xl font-bold mb-4">Visualizador de PDF</h1>
-
-      <div className="bg-white shadow-lg p-4 rounded-lg max-w-full overflow-auto">
-        <Document
-          file={fileUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          loading={<p>Carregando PDF...</p>}
-          error={<p>Erro ao carregar PDF.</p>}
-        >
-          <Page pageNumber={pageNumber} width={800} />
-        </Document>
+    <div className="w-full min-h-[60vh] bg-black/70 rounded-md p-4">
+      <div className="text-white mb-3 flex items-center justify-between">
+        <strong>PDF — {pageKey}</strong>
+        <span className="text-sm text-white/70">Preview</span>
       </div>
 
-      {numPages > 1 && (
-        <div className="mt-4 flex gap-2">
-          <button
-            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
-            onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
-            disabled={pageNumber <= 1}
-          >
-            Anterior
-          </button>
-          <span>
-            Página {pageNumber} de {numPages}
-          </span>
-          <button
-            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
-            onClick={() => setPageNumber((prev) => Math.min(prev + 1, numPages))}
-            disabled={pageNumber >= numPages}
-          >
-            Próxima
-          </button>
-        </div>
-      )}
+      <div className="bg-white rounded shadow overflow-hidden">
+        <object data={src} type="application/pdf" width="100%" height="720">
+          <div className="p-6">
+            <p>Seu navegador não suporta visualização PDF embutida.</p>
+            <a href={src} target="_blank" rel="noreferrer" className="underline">Abrir PDF</a>
+          </div>
+        </object>
+      </div>
     </div>
   );
-}
+};
+
+export default PdfViewerScreen;

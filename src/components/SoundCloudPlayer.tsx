@@ -1,32 +1,23 @@
-// src/components/SoundCloudPlayer.tsx
 import React from "react";
 
-type Props = {
+interface Props {
   onTalkAboutMusic?: () => void;
-};
+}
 
-export default function SoundCloudPlayer({ onTalkAboutMusic }: Props) {
-  // Exemplo de embed simples — substitua o src pelo seu link de widget se houver outro
-  const scSrc = "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/0000000&auto_play=false";
-
+const SoundCloudPlayer: React.FC<Props> = ({ onTalkAboutMusic }) => {
   return (
-    <div className="w-full my-4 flex justify-center">
-      <iframe
-        title="soundcloud-player"
-        width="100%"
-        height="166"
-        scrolling="no"
-        frameBorder="no"
-        // ESSENCIAL: permite encrypted-media para evitar Permission Policy errors
-        allow="autoplay; encrypted-media"
-        allow="encrypted-media"
-        src={scSrc}
-      />
-      {onTalkAboutMusic && (
-        <button onClick={onTalkAboutMusic} className="hidden">
-          falar
-        </button>
-      )}
+    <div className="mt-6 p-4 bg-white/5 rounded">
+      <div className="flex items-center justify-between">
+        <div>
+          <strong>SoundCloud Player</strong>
+          <p className="text-sm text-white/70">Player embed simplificado (fallback).</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => onTalkAboutMusic && onTalkAboutMusic()} className="px-3 py-1 rounded bg-green-600">Falar sobre música</button>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default SoundCloudPlayer;

@@ -1,42 +1,38 @@
-// src/components/PdfViewerScreen.tsx
-import React from "react";
+import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/TextLayer.css";
+import "react-pdf/dist/Page/AnnotationLayer.css";
 
-type Props = {
-  preloadedFileUrl?: string | null;
-  fallbackPath?: string;
-  onPage1Rendered?: () => void;
-};
+// Configura o worker do PDF.js
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-// garante worker compatível (pdfjs-dist 2.x)
-pdfjs.GlobalWorkerOptions.workerSrc =
-  "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js";
+interface PdfViewerScreenProps {
+  fileUrl: string;
+}
 
-export default function PdfViewerScreen({
-  preloadedFileUrl,
-  fallbackPath = "/home.pdf",
-  onPage1Rendered,
-}: Props) {
-  const fileToUse = preloadedFileUrl ?? fallbackPath;
+export default function PdfViewerScreen({ fileUrl }: PdfViewerScreenProps) {
+  const [numPages, setNumPages] = useState<number>(0);
+
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    setNumPages(numPages);
+  }
 
   return (
-    <div className="w-full min-h-screen p-4">
-      <div className="max-w-4xl mx-auto bg-black/70 p-4 rounded">
-        <Document
-          file={fileToUse}
-          onLoadError={(err) => {
-            console.error("Erro carregando documento PDF:", err);
-            // garante que loader não fique preso
-            if (onPage1Rendered) onPage1Rendered();
-          }}
-          onLoadSuccess={() => {
-            if (onPage1Rendered) onPage1Rendered();
-          }}
-          loading={<div className="text-white">Carregando PDF...</div>}
-        >
-          <Page pageNumber={1} loading={<div className="text-white">Renderizando página 1...</div>} />
-        </Document>
-      </div>
+    <div className="flex flex-col items-center p-4">
+      <Document
+        file={fileUrl}
+        onLoadSuccess={onDocumentLoadSuccess}
+        loading={<p>Loading PDF...</p>}
+        error={<p>Failed to load PDF.</p>}
+      >
+        {Array.from(new Array(numPages), (_, index) => (
+          <Page
+            key={`page_${index + 1}`}
+            pageNumber={index + 1}
+            width={800}
+          />
+        ))}
+      </Document>
     </div>
   );
 }

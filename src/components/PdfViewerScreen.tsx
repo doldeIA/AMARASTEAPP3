@@ -1,38 +1,35 @@
-import { useState } from "react";
+import React, { useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/Page/TextLayer.css";
-import "react-pdf/dist/Page/AnnotationLayer.css";
 
-// Configura o worker do PDF.js
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+type Props = {
+  preloadedFileUrl?: string | null;
+  fallbackPath?: string;
+  page?: number;
+  onRendered?: () => void;
+};
 
-interface PdfViewerScreenProps {
-  fileUrl: string;
-}
+pdfjs.GlobalWorkerOptions.workerSrc =
+  "https://unpkg.com/pdfjs-dist@5.4.54/build/pdf.worker.min.js";
 
-export default function PdfViewerScreen({ fileUrl }: PdfViewerScreenProps) {
-  const [numPages, setNumPages] = useState<number>(0);
+export default function PdfViewerScreen({
+  preloadedFileUrl,
+  fallbackPath = "/home.pdf",
+  page = 1,
+  onRendered,
+}: Props) {
+  const file = preloadedFileUrl || fallbackPath;
 
-  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    setNumPages(numPages);
-  }
+  useEffect(() => {
+    onRendered?.();
+  }, [file, onRendered]);
 
   return (
-    <div className="flex flex-col items-center p-4">
-      <Document
-        file={fileUrl}
-        onLoadSuccess={onDocumentLoadSuccess}
-        loading={<p>Loading PDF...</p>}
-        error={<p>Failed to load PDF.</p>}
-      >
-        {Array.from(new Array(numPages), (_, index) => (
-          <Page
-            key={`page_${index + 1}`}
-            pageNumber={index + 1}
-            width={800}
-          />
-        ))}
-      </Document>
+    <div className="p-4 min-h-screen bg-black text-white">
+      <div className="max-w-3xl mx-auto bg-white text-black p-4 rounded">
+        <Document file={file}>
+          <Page pageNumber={page} />
+        </Document>
+      </div>
     </div>
   );
 }

@@ -1,15 +1,8 @@
-/* src/index.css
-   Versão limpa e validada, compatível com Tailwind (PostCSS).
-   Substitua o arquivo atual inteiro por este conteúdo.
-*/
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ==============================
-   Variáveis de Tema
-   ============================== */
+/* Theme variables */
 :root {
   --color-primary: #A13500;
   --color-accent: #FF8345;
@@ -17,12 +10,8 @@
   --text-main: #ffffff;
 }
 
-/* ==============================
-   Reset e Layout Base
-   ============================== */
-html,
-body,
-#root {
+/* Base reset / layout */
+html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -33,34 +22,26 @@ body {
   color: var(--text-main);
   min-height: 100%;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+    "Helvetica Neue", Arial;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ==============================
-   Utilidades e Animações
-   ============================== */
+/* Small utility tweaks used by the fallback components */
 .neon-pulse {
   animation: neonPulse 0.6s ease-in-out infinite;
 }
 
 @keyframes neonPulse {
-  0%, 100% {
-    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
-  }
-  50% {
-    box-shadow: 0 0 14px rgba(178, 96, 38, 0.8);
-  }
+  0%, 100% { box-shadow: 0 0 6px rgba(255,255,255,0.6); }
+  50%      { box-shadow: 0 0 14px rgba(178,96,38,0.8); }
 }
 
 .bg-primary {
   background-color: var(--color-primary);
 }
 
-/* ==============================
-   Estilo para PDFs/Objetos Embutidos
-   ============================== */
+/* Ensure object/pdf container looks good when embedded */
 .object-pdf-wrapper {
   width: 100%;
   height: 720px;
@@ -68,9 +49,7 @@ body {
   color: #000;
 }
 
-/* Responsividade */
+/* small responsive helper */
 @media (max-width: 640px) {
-  .object-pdf-wrapper {
-    height: 520px;
-  }
+  .object-pdf-wrapper { height: 520px; }
 }

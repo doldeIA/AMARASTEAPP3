@@ -1,63 +1,77 @@
 import React, { useState } from "react";
 
-export type Message = { sender: "user" | "assistant"; text: string };
+export interface Message {
+  sender: "user" | "assistant";
+  text: string;
+}
 
 interface Props {
   messages: Message[];
-  isLoading?: boolean;
-  error?: string | null;
+  isLoading: boolean;
+  error: string | null;
   onClose: () => void;
-  onSendMessage: (text: string) => Promise<void> | void;
-  onStopGeneration?: () => void;
+  onSendMessage: (input: string) => void;
+  onStopGeneration: () => void;
 }
 
-const ChatModal: React.FC<Props> = ({ messages, onClose, onSendMessage, isLoading, error }) => {
-  const [text, setText] = useState("");
-
-  const send = async () => {
-    const t = text.trim();
-    if (!t) return;
-    setText("");
-    await onSendMessage(t);
-  };
+const ChatModal: React.FC<Props> = ({
+  messages,
+  isLoading,
+  error,
+  onClose,
+  onSendMessage,
+  onStopGeneration,
+}) => {
+  const [input, setInput] = useState("");
 
   return (
-    <div className="fixed inset-0 z-60 flex items-end md:items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full md:max-w-xl bg-gray-900 rounded-lg shadow-lg p-4 z-10">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">Assistente Amarasté</h3>
-          <div className="flex gap-2 items-center">
-            {error && <span className="text-sm text-red-400">{error}</span>}
-            <button onClick={onClose} className="text-sm underline">Fechar</button>
-          </div>
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md flex flex-col h-[80vh]">
+        <div className="p-4 border-b flex justify-between items-center">
+          <h2 className="font-bold text-lg">Chat</h2>
+          <button onClick={onClose}>✖</button>
         </div>
 
-        <div className="max-h-60 overflow-y-auto mb-3 space-y-2">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {messages.map((m, i) => (
-            <div key={i} className={`text-sm ${m.sender === "assistant" ? "text-left" : "text-right"}`}>
-              <div className={`inline-block px-3 py-2 rounded ${m.sender === "assistant" ? "bg-gray-800" : "bg-blue-600"}`}>
-                <small className="block opacity-80">{m.sender}</small>
-                <div>{m.text}</div>
-              </div>
+            <div
+              key={i}
+              className={`p-2 rounded-lg max-w-[80%] ${
+                m.sender === "user"
+                  ? "bg-gold text-black self-end ml-auto"
+                  : "bg-gray-200 text-black self-start"
+              }`}
+            >
+              {m.text}
             </div>
           ))}
+          {isLoading && <p className="text-sm text-gray-500">Gerando resposta...</p>}
+          {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
 
-        <div className="flex gap-2">
+        <div className="p-3 border-t flex gap-2">
           <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            className="flex-1 px-3 py-2 rounded bg-black/30 outline-none"
-            placeholder="Digite sua mensagem"
-            onKeyDown={(e) => e.key === "Enter" && send()}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onSendMessage(input);
+                setInput("");
+              }
+            }}
+            className="flex-1 border rounded px-2 py-1"
+            placeholder="Digite sua mensagem..."
           />
-          <button onClick={send} disabled={!text.trim()} className="px-4 py-2 rounded bg-green-600">
+          <button
+            onClick={() => {
+              onSendMessage(input);
+              setInput("");
+            }}
+            className="bg-gold px-4 py-1 rounded text-black font-semibold"
+          >
             Enviar
           </button>
         </div>
-
-        {isLoading && <div className="text-xs text-white/60 mt-2">Gerando resposta…</div>}
       </div>
     </div>
   );

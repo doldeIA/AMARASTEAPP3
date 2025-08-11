@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ activeScreen, onNavigateDownloads, onNa
           </button>
         </nav>
 
-        {/* Mobile hamburger / quick actions */}
+        {/* Mobile quick actions */}
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={() => onNavigateToPage("pdf")}

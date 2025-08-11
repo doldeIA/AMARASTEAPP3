@@ -1,14 +1,12 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
-// Vite config minimal e compatível com Vercel
 export default defineConfig({
   plugins: [react()],
-  build: {
-    outDir: "dist",
-  },
-  server: {
-    port: 3000,
-  },
-  base: "./"
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  }
 });

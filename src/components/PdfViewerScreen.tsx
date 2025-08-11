@@ -1,38 +1,35 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 interface Props {
   pageKey: string;
-  fallbackPath?: string;
-  preloadedFileUrl?: string | null;
+  fallbackPath: string;
+  preloadedFileUrl?: string;
   onPage1Rendered?: () => void;
 }
 
-const PdfViewerScreen: React.FC<Props> = ({ pageKey, fallbackPath = "/home.pdf", preloadedFileUrl, onPage1Rendered }) => {
+const PdfViewerScreen: React.FC<Props> = ({
+  fallbackPath,
+  preloadedFileUrl,
+  onPage1Rendered,
+}) => {
+  const [pdfUrl, setPdfUrl] = useState<string>(preloadedFileUrl || fallbackPath);
+
   useEffect(() => {
-    // Simula renderização da primeira página e notifica o pai para esconder loader
-    const t = setTimeout(() => {
-      onPage1Rendered && onPage1Rendered();
-    }, 600);
-    return () => clearTimeout(t);
+    if (onPage1Rendered) {
+      const t = setTimeout(() => onPage1Rendered(), 500);
+      return () => clearTimeout(t);
+    }
   }, [onPage1Rendered]);
 
-  const src = preloadedFileUrl || fallbackPath;
-
   return (
-    <div className="w-full min-h-[60vh] bg-black/70 rounded-md p-4">
-      <div className="text-white mb-3 flex items-center justify-between">
-        <strong>PDF — {pageKey}</strong>
-        <span className="text-sm text-white/70">Preview</span>
-      </div>
-
-      <div className="bg-white rounded shadow overflow-hidden">
-        <object data={src} type="application/pdf" width="100%" height="720">
-          <div className="p-6">
-            <p>Seu navegador não suporta visualização PDF embutida.</p>
-            <a href={src} target="_blank" rel="noreferrer" className="underline">Abrir PDF</a>
-          </div>
-        </object>
-      </div>
+    <div className="w-full flex justify-center py-6">
+      <object
+        data={pdfUrl}
+        type="application/pdf"
+        className="object-pdf-wrapper"
+      >
+        <p>Seu navegador não suporta visualização de PDF. <a href={pdfUrl}>Baixe aqui</a>.</p>
+      </object>
     </div>
   );
 };

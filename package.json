@@ -1,27 +1,31 @@
 {
   "name": "amarasteapp",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
- "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview"
-}
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-pdf": "^7.7.1",
-    "pdfjs-dist": "^3.11.174",
-    "@google/generative-ai": "^0.22.0"
+    "@google/generative-ai": "^0.22.0",
+    "chart.js": "^4.4.3",
+    "jspdf": "2.5.1",
+    "jspdf-autotable": "3.8.2",
+    "idb": "^7.1.1",
+    "react-pdf": "^10.0.1",
+    "pdfjs-dist": "^5.4.54"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
-    "typescript": "^5.4.5",
+    "typescript": "~5.8.2",
     "vite": "^4.5.14",
-    "@vitejs/plugin-react": "^3.1.0",
     "tailwindcss": "^3.4.7",
-    "postcss": "^8.4.38",
-    "autoprefixer": "^10.4.19"
+    "postcss": "^8.4.21",
+    "autoprefixer": "^10.4.14",
+    "@vitejs/plugin-react": "^3.1.0"
   }
 }

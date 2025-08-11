@@ -1,5 +1,5 @@
 /* src/index.css
-   Versão limpa compatível com Tailwind (PostCSS).
+   Versão limpa e validada, compatível com Tailwind (PostCSS).
    Substitua o arquivo atual inteiro por este conteúdo.
 */
 
@@ -7,7 +7,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme variables */
+/* ==============================
+   Variáveis de Tema
+   ============================== */
 :root {
   --color-primary: #A13500;
   --color-accent: #FF8345;
@@ -15,8 +17,12 @@
   --text-main: #ffffff;
 }
 
-/* Base reset / layout */
-html, body, #root {
+/* ==============================
+   Reset e Layout Base
+   ============================== */
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -27,26 +33,34 @@ body {
   color: var(--text-main);
   min-height: 100%;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial;
+    "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Small utility tweaks used by the fallback components */
+/* ==============================
+   Utilidades e Animações
+   ============================== */
 .neon-pulse {
   animation: neonPulse 0.6s ease-in-out infinite;
 }
 
 @keyframes neonPulse {
-  0%, 100% { box-shadow: 0 0 6px rgba(255,255,255,0.6); }
-  50%      { box-shadow: 0 0 14px rgba(178,96,38,0.8); }
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(178, 96, 38, 0.8);
+  }
 }
 
 .bg-primary {
   background-color: var(--color-primary);
 }
 
-/* Ensure object/pdf container looks good when embedded */
+/* ==============================
+   Estilo para PDFs/Objetos Embutidos
+   ============================== */
 .object-pdf-wrapper {
   width: 100%;
   height: 720px;
@@ -54,7 +68,9 @@ body {
   color: #000;
 }
 
-/* small responsive helper */
+/* Responsividade */
 @media (max-width: 640px) {
-  .object-pdf-wrapper { height: 520px; }
+  .object-pdf-wrapper {
+    height: 520px;
+  }
 }
